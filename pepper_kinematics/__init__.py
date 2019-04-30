@@ -63,3 +63,10 @@ def left_arm_set_position(angles, target_pos, target_ori, epsilon = 0.0001):
     return ik.calc_inv_pos(angles, target_pos, target_ori, epsilon, right=False)
 
 
+def left_arm_set_orientation(angles, target_pos, target_ori, epsilon = 0.0001):
+    return ik.calc_inv_ori(angles, target_pos, target_ori, epsilon, right=False)
+
+def left_arm_get_trans(angles):
+    return fk.calc_trans_matrix(angles)
+
+

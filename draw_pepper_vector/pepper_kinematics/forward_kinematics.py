@@ -106,11 +106,9 @@ def calc_fk_and_jacob(angles, jacob=True, right=True):
     J4 = cross(j4, vec4)
     J5 = cross(j5, vec5)
     
-    Jv = np.c_[J1, J2, J3, J4, J5]
-    
+    Jv = np.c_[J1, J2, J3, J4, J5]    
     jw = np.c_[j1, j2, j3, j4, j5][0:3,:]
 
-    
     euler_ori = np.array(Euler_Angles.rot2euler(ori))
     
     return pos, euler_ori, Jv, jw

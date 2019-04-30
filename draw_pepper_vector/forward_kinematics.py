@@ -2,6 +2,7 @@ import math
 import numpy as np
 import scipy as sp
 from scipy import linalg
+import Euler_Angles
 
 
 L1 = 0.14974
@@ -33,6 +34,25 @@ def transZ(th, x, y, z):
     c = math.cos(th)
     return np.array([[c, -s, 0, x], [s, c, 0, y], [0, 0, 1, z], [0, 0, 0, 1]])
 
+def calc_trans_matrix(angles):
+    
+    T1 = transY(-angles[0], 0, L1, 0)
+    T2 = transZ(angles[1], 0, 0, 0)
+    Td = transY(9.0/180.0*math.pi, L3, L2, 0)
+    T3 = transX(angles[2], 0, 0, 0)
+    T4 = transZ(angles[3], 0, 0, 0)
+    T5 = transX(angles[4], L5, 0, 0)
+    T6 = transZ(0, L6, 0, -L7)
+    
+    T1Abs = T1
+    T2Abs = T1Abs.dot(T2)
+    TdAbs = T2Abs.dot(Td)
+    T3Abs = TdAbs.dot(T3)
+    T4Abs = T3Abs.dot(T4)
+    T5Abs = T4Abs.dot(T5)
+    T6Abs = T5Abs.dot(T6)
+    
+    return T1Abs, T2Abs, T3Abs, T4Abs, T5Abs, T6Abs
 
 def calc_fk_and_jacob(angles, jacob=True, right=True):
     _L1_ = -L1 if right else L1
@@ -86,8 +106,14 @@ def calc_fk_and_jacob(angles, jacob=True, right=True):
     J4 = cross(j4, vec4)
     J5 = cross(j5, vec5)
     
-    J = np.c_[J1, J2, J3, J4, J5]
-    return pos, ori, J
+    Jv = np.c_[J1, J2, J3, J4, J5]
+    
+    jw = np.c_[j1, j2, j3, j4, j5]
+    jw = jw[0:3,:]
+    
+    euler_ori = np.array(Euler_Angles.rot2euler(ori))
+    
+    return pos, euler_ori, Jv, jw
 
 
 def cross(j, v):
@@ -95,27 +121,4 @@ def cross(j, v):
     t1 = j[2][0] * v[0][0] - j[0][0] * v[2][0]
     t2 = j[0][0] * v[1][0] - j[1][0] * v[0][0]
     return np.array([[t0], [t1], [t2]])
-
-def calc_fk_trans(angles, right=True):
-# angles = "LShoulderPitch", "LShoulderRoll", "LElbowYaw", "LElbowRoll", "LWristYaw"
-    
-    _L1_ = -L1 if right else L1
-    _L2_ = -L2 if right else L2
-
-    T1 = transY(-angles[0], 0, _L1_, 0)          # y(pitch) Axis rotaion "LShoulderPitch"
-    T2 = transZ(angles[1], 0, 0, 0)              # "LSholderRoll"
-    Td = transY(9.0/180.0*math.pi, L3, _L2_, 0)  # Offset of elbew 9 and sholuder_offset & UpperArm
-    T3 = transX(angles[2], 0, 0, 0)              # "LElbowYaw"
-    T4 = transZ(angles[3], 0, 0, 0)              # "LElbowRoll"
-    T5 = transX(angles[4], L5, 0, 0)             # "LWristYaw" and LowerArmLength (Elbow to Hand)
-    T6 = transZ(0, L6, 0, -L7)                   # HandOffsetX (Hand to finger) and HandOffsetZ (finger to fingertip)
-    
-    T1Abs = T1
-    T2Abs = T1Abs.dot(T2)
-    TdAbs = T2Abs.dot(Td)
-    T3Abs = TdAbs.dot(T3)
-    T4Abs = T3Abs.dot(T4)
-    T5Abs = T4Abs.dot(T5)
-    T6Abs = T5Abs.dot(T6) # End-effector's Transformation 4 by 4 matrix
-
-    return T1Abs, T3Abs, T4Abs, T5Abs, T6Abs
+        
