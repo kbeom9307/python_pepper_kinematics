@@ -35,7 +35,7 @@ def transZ(th, x, y, z):
     return np.array([[c, -s, 0, x], [s, c, 0, y], [0, 0, 1, z], [0, 0, 0, 1]])
 
 def calc_trans_matrix(angles):
-    
+    print(angles)
     T1 = transY(-angles[0], 0, L1, 0)
     T2 = transZ(angles[1], 0, 0, 0)
     Td = transY(9.0/180.0*math.pi, L3, L2, 0)
@@ -107,13 +107,12 @@ def calc_fk_and_jacob(angles, jacob=True, right=True):
     J5 = cross(j5, vec5)
     
     Jv = np.c_[J1, J2, J3, J4, J5]
-    
-    jw = np.c_[j1, j2, j3, j4, j5][0:3,:]
+    Jw = np.c_[j1, j2, j3, j4, j5][0:3,:]
+    J = np.vstack((Jv, Jw))
 
-    
     euler_ori = np.array(Euler_Angles.rot2euler(ori))
     
-    return pos, euler_ori, Jv, jw
+    return pos, euler_ori, J
 
 
 def cross(j, v):

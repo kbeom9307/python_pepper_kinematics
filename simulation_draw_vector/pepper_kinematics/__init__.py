@@ -59,7 +59,7 @@ def right_arm_set_position(angles, target_pos, target_ori, epsilon=0.0001):
     """
     return ik.calc_inv_pos(angles, target_pos, target_ori, epsilon, right=True)
 
-def left_arm_set_position(angles, target_pos, target_ori, epsilon = 0.0001):
+def left_arm_set_position(angles, target_pos, target_ori, epsilon = 0.1):
     return ik.calc_inv_pos(angles, target_pos, target_ori, epsilon, right=False)
 
 

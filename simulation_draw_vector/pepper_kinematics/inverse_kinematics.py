@@ -16,7 +16,6 @@ def calc_inv_pos(angles, target_pos, target_ori, epsilon, right=True):
         delta_ori = np.matrix((target_ori-ori)[0:3]).transpose()
         
         delta = np.vstack((delta_pos, delta_ori))
-        print("delta : ", delta)
 
         v_w = (J * delta).transpose()
         angs = np.squeeze(np.asarray(v_w)) + angs
